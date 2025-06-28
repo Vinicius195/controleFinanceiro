@@ -244,6 +244,24 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="recipes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Principais Receitas de Pizza</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Descreva suas principais pizzas, ingredientes, etc."
+                    rows={5}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
               <>

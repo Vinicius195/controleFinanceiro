@@ -26,7 +26,7 @@ const prompt = ai.definePrompt({
   name: 'financialRecommendationsPrompt',
   input: {schema: FinancialRecommendationsInputSchema},
   output: {schema: FinancialRecommendationsOutputSchema},
-  prompt: `Você é um consultor financeiro para uma pizzaria. Analise os dados de receita e despesas fornecidos para oferecer recomendações práticas para melhorar a lucratividade.
+  prompt: `Você é um consultor financeiro especialista em pizzarias. Analise os dados financeiros e as receitas de pizza fornecidas para oferecer recomendações práticas e detalhadas para melhorar a lucratividade.
 
 Dados Financeiros:
 - Receita: {{{revenue}}} BRL
@@ -34,11 +34,17 @@ Dados Financeiros:
 - Custos de Ingredientes: {{{ingredientCosts}}} BRL
 - Custos com Salários: {{{wageCosts}}} BRL
 - Custos com Aluguel: {{{rentCosts}}} BRL
-- Estratégia de Preços: {{{pricingStrategy}}}
 
-Com base nessas informações, forneça recomendações sobre ajustes de custos ou estratégias de preços para melhorar a lucratividade.
-Dê exemplos concretos de mudanças que podem ser feitas.
-Responda em português do Brasil.
+Estratégia e Produtos:
+- Estratégia de Preços: {{{pricingStrategy}}}
+- Principais Receitas de Pizza: {{{recipes}}}
+
+Com base em todas essas informações, forneça recomendações sobre:
+1.  **Otimização de Custos:** Analise os custos de ingredientes em relação às receitas de pizza. Sugira substituições ou negociações com fornecedores.
+2.  **Estratégia de Preços:** Com base nas receitas, avalie se os preços estão adequados. Sugira ajustes, combos ou promoções para as pizzas mais populares ou lucrativas.
+3.  **Ações Concretas:** Dê exemplos práticos de mudanças que podem ser implementadas.
+
+Responda em português do Brasil, de forma clara e organizada.
 `,
   safetySettings: [
     {

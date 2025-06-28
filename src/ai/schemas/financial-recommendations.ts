@@ -37,6 +37,12 @@ export const FinancialRecommendationsInputSchema = z.object({
     .describe(
       'Estratégia de preços atual para as pizzas, incluindo preço médio por pizza e descontos oferecidos.'
     ),
+  recipes: z
+    .string()
+    .min(10, 'As receitas devem ter pelo menos 10 caracteres.')
+    .describe(
+      'Descreva as principais receitas de pizza, incluindo ingredientes. Isso ajudará a IA a dar sugestões mais específicas.'
+    ),
 });
 export type FinancialRecommendationsInput = z.infer<typeof FinancialRecommendationsInputSchema>;
 
