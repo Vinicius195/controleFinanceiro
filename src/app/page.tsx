@@ -23,25 +23,31 @@ import {
   TrendingDown,
   TrendingUp,
   BrainCircuit,
+  Building,
+  Truck,
+  ShoppingBasket,
 } from "lucide-react";
 import { FinancialForm } from "@/components/financial-form";
 import { ProfitChart } from "@/components/profit-chart";
 
 export default function Home() {
-  const [financialData, setFinancialData] = useState<FinancialRecommendationsInput>({
-    revenue: 45000,
-    expenses: 28000,
+  const [financialData, setFinancialData] = useState<Omit<FinancialRecommendationsInput, 'revenue' | 'expenses'>>({
+    dineInRevenue: 20000,
+    deliveryRevenue: 15000,
+    takeoutRevenue: 10000,
     ingredientCosts: 12000,
     wageCosts: 10000,
     rentCosts: 6000,
     pricingStrategy: "O preço médio por pizza é de R$55. Oferecemos 10% de desconto em pedidos acima de R$120.",
     recipes: "1. Pizza de Calabresa: Molho, muçarela, calabresa e cebola.\n2. Pizza de Frango com Catupiry: Molho, muçarela, frango desfiado e catupiry.\n3. Pizza Margherita: Molho, muçarela, tomate e manjericão.",
-    revenueBreakdown: "60% da receita vem de delivery, 30% do salão e 10% de pedidos online. As pizzas de calabresa e frango são as mais vendidas.",
   });
   
-  const handleDataChange = (newData: FinancialRecommendationsInput) => {
+  const handleDataChange = (newData: Omit<FinancialRecommendationsInput, 'revenue' | 'expenses'>) => {
     setFinancialData(newData);
   };
+
+  const revenue = financialData.dineInRevenue + financialData.deliveryRevenue + financialData.takeoutRevenue;
+  const expenses = financialData.ingredientCosts + financialData.wageCosts + financialData.rentCosts;
 
   const formatCurrency = (value: number) => {
     if (isNaN(value)) {
@@ -50,18 +56,18 @@ export default function Home() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
 
-  const profit = financialData.revenue - financialData.expenses;
-  const profitMargin = financialData.revenue > 0 ? (profit / financialData.revenue) * 100 : 0;
+  const profit = revenue - expenses;
+  const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
   const kpiData = [
     {
       title: "Receita Total",
-      value: formatCurrency(financialData.revenue),
+      value: formatCurrency(revenue),
       icon: <DollarSign className="h-4 w-4 text-muted-foreground" />,
     },
     {
       title: "Despesas Totais",
-      value: formatCurrency(financialData.expenses),
+      value: formatCurrency(expenses),
       icon: <TrendingDown className="h-4 w-4 text-muted-foreground" />,
     },
     {
@@ -76,11 +82,23 @@ export default function Home() {
     },
   ];
 
+  const revenueData = [
+    { category: "Vendas no Salão", amount: formatCurrency(financialData.dineInRevenue), icon: <Building className="h-5 w-5 text-muted-foreground" /> },
+    { category: "Vendas por Delivery", amount: formatCurrency(financialData.deliveryRevenue), icon: <Truck className="h-5 w-5 text-muted-foreground" /> },
+    { category: "Vendas para Retirada", amount: formatCurrency(financialData.takeoutRevenue), icon: <ShoppingBasket className="h-5 w-5 text-muted-foreground" /> },
+  ];
+
   const expenseData = [
     { category: "Ingredientes", amount: formatCurrency(financialData.ingredientCosts) },
     { category: "Salários", amount: formatCurrency(financialData.wageCosts) },
     { category: "Aluguel e Contas", amount: formatCurrency(financialData.rentCosts) },
   ];
+  
+  const fullFinancialData: FinancialRecommendationsInput = {
+    ...financialData,
+    revenue,
+    expenses,
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -110,13 +128,27 @@ export default function Home() {
           <div className="md:col-span-4 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Margem de Lucro ao Longo do Tempo</CardTitle>
-                <CardDescription>
-                  Uma análise das suas tendências de lucro nos últimos 7 meses.
-                </CardDescription>
+                <CardTitle>Detalhamento da Receita</CardTitle>
               </CardHeader>
               <CardContent>
-                <ProfitChart />
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {revenueData.map((item) => (
+                      <TableRow key={item.category}>
+                        <TableCell className="font-medium flex items-center gap-2">{item.icon} {item.category}</TableCell>
+                        <TableCell className="text-right">
+                          {item.amount}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
             <Card>
@@ -134,7 +166,7 @@ export default function Home() {
                   <TableBody>
                     {expenseData.map((item) => (
                       <TableRow key={item.category}>
-                        <TableCell>{item.category}</TableCell>
+                        <TableCell className="font-medium">{item.category}</TableCell>
                         <TableCell className="text-right">
                           {item.amount}
                         </TableCell>
@@ -142,6 +174,17 @@ export default function Home() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+             <Card>
+              <CardHeader>
+                <CardTitle>Margem de Lucro ao Longo do Tempo</CardTitle>
+                <CardDescription>
+                  Uma análise das suas tendências de lucro nos últimos 7 meses.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProfitChart />
               </CardContent>
             </Card>
           </div>
@@ -152,11 +195,11 @@ export default function Home() {
                 Consultor Financeiro de IA
               </CardTitle>
               <CardDescription>
-                Insira seus dados para ver o painel se atualizar e obter recomendações da IA.
+                Ajuste os valores para ver o painel se atualizar e obter recomendações da IA.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <FinancialForm data={financialData} onDataChange={handleDataChange} />
+              <FinancialForm data={fullFinancialData} onDataChange={handleDataChange} />
             </CardContent>
           </Card>
         </div>

@@ -15,6 +15,7 @@ import {
   FinancialRecommendationsOutput,
   FinancialRecommendationsOutputSchema,
 } from '@/ai/schemas/financial-recommendations';
+import {z} from 'zod';
 
 export async function getFinancialRecommendations(
   input: FinancialRecommendationsInput
@@ -24,7 +25,11 @@ export async function getFinancialRecommendations(
 
 const prompt = ai.definePrompt({
   name: 'financialRecommendationsPrompt',
-  input: {schema: FinancialRecommendationsInputSchema},
+  input: {
+    schema: FinancialRecommendationsInputSchema.extend({
+      revenueBreakdown: z.string(),
+    }),
+  },
   output: {schema: FinancialRecommendationsOutputSchema},
   prompt: `Você é um consultor financeiro especialista em pizzarias. Analise os dados financeiros e as receitas de pizza fornecidas para oferecer recomendações práticas e detalhadas para melhorar a lucratividade.
 
@@ -74,7 +79,14 @@ const financialRecommendationsFlow = ai.defineFlow(
     outputSchema: FinancialRecommendationsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const revenueBreakdown = `Vendas no salão: ${input.dineInRevenue} BRL, Vendas por delivery: ${input.deliveryRevenue} BRL, Vendas para retirada: ${input.takeoutRevenue} BRL.`;
+
+    const promptInput = {
+      ...input,
+      revenueBreakdown,
+    };
+
+    const {output} = await prompt(promptInput);
     if (!output) {
       throw new Error(
         'A IA não conseguiu gerar uma recomendação. Verifique os dados e tente novamente.'

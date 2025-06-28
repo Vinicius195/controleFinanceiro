@@ -18,7 +18,23 @@ export const FinancialRecommendationsInputSchema = z.object({
   expenses: z
     .number()
     .min(0, 'As despesas devem ser um número positivo.')
-    .describe('Despesas totais, incluindo ingredientes, salários e aluguel em BRL.'),
+    .describe(
+      'Despesas totais, incluindo ingredientes, salários e aluguel em BRL.'
+    ),
+  dineInRevenue: z
+    .number()
+    .min(0, 'A receita de salão deve ser um número positivo.')
+    .describe('Receita total das vendas no salão em BRL.'),
+  deliveryRevenue: z
+    .number()
+    .min(0, 'A receita de delivery deve ser um número positivo.')
+    .describe('Receita total das vendas por delivery em BRL.'),
+  takeoutRevenue: z
+    .number()
+    .min(0, 'A receita de retirada deve ser um número positivo.')
+    .describe(
+      'Receita total das vendas para retirada (online/telefone) em BRL.'
+    ),
   ingredientCosts: z
     .number()
     .min(0, 'O custo com ingredientes deve ser um número positivo.')
@@ -43,16 +59,18 @@ export const FinancialRecommendationsInputSchema = z.object({
     .describe(
       'Descreva as principais receitas de pizza, incluindo ingredientes. Isso ajudará a IA a dar sugestões mais específicas.'
     ),
-  revenueBreakdown: z
-    .string()
-    .min(10, 'O detalhamento da receita deve ter pelo menos 10 caracteres.')
-    .describe(
-      'Detalhe as fontes de receita. Ex: 60% delivery, 40% salão. Ou: Pizza de Calabresa representa 50% da receita.'
-    ),
 });
-export type FinancialRecommendationsInput = z.infer<typeof FinancialRecommendationsInputSchema>;
+export type FinancialRecommendationsInput = z.infer<
+  typeof FinancialRecommendationsInputSchema
+>;
 
 export const FinancialRecommendationsOutputSchema = z.object({
-  recommendations: z.string().describe('Recomendações geradas por IA para melhorar a lucratividade.'),
+  recommendations: z
+    .string()
+    .describe(
+      'Recomendações geradas por IA para melhorar a lucratividade.'
+    ),
 });
-export type FinancialRecommendationsOutput = z.infer<typeof FinancialRecommendationsOutputSchema>;
+export type FinancialRecommendationsOutput = z.infer<
+  typeof FinancialRecommendationsOutputSchema
+>;
