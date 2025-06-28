@@ -20,14 +20,14 @@ import { useToast } from "@/hooks/use-toast";
 import { getRecommendationsAction } from "@/app/actions";
 import { Separator } from "./ui/separator";
 import { Slider } from "@/components/ui/slider";
+import { FinancialRecommendationsInputSchema } from "@/ai/schemas/financial-recommendations";
 
-const formSchema = z.object({
-  revenue: z.coerce.number().min(0, "A receita deve ser um número positivo."),
-  expenses: z.coerce.number().min(0, "As despesas devem ser um número positivo."),
-  ingredientCosts: z.coerce.number().min(0, "O custo com ingredientes deve ser um número positivo."),
-  wageCosts: z.coerce.number().min(0, "O custo com salários deve ser um número positivo."),
-  rentCosts: z.coerce.number().min(0, "O custo com aluguel deve ser um número positivo."),
-  pricingStrategy: z.string().min(10, "Por favor, descreva sua estratégia de preços em pelo menos 10 caracteres."),
+const formSchema = FinancialRecommendationsInputSchema.extend({
+  revenue: z.coerce.number(),
+  expenses: z.coerce.number(),
+  ingredientCosts: z.coerce.number(),
+  wageCosts: z.coerce.number(),
+  rentCosts: z.coerce.number(),
 });
 
 type FormValues = z.infer<typeof formSchema>;

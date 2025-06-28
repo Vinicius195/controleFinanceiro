@@ -6,33 +6,15 @@
  * @fileOverview Fornece recomendações financeiras com base em dados de receitas e despesas.
  *
  * - getFinancialRecommendations - Uma função que recebe dados de receitas e despesas e retorna recomendações financeiras.
- * - FinancialRecommendationsInput - O tipo de entrada para a função getFinancialRecommendations.
- * - FinancialRecommendationsOutput - O tipo de retorno para a função getFinancialRecommendations.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const FinancialRecommendationsInputSchema = z.object({
-  revenue: z
-    .number()
-    .describe('Receita total de todos os canais de venda em BRL.'),
-  expenses: z.number().describe('Despesas totais, incluindo ingredientes, salários e aluguel em BRL.'),
-  ingredientCosts: z.number().describe('Custo total dos ingredientes em BRL.'),
-  wageCosts: z.number().describe('Custo total com salários em BRL.'),
-  rentCosts: z.number().describe('Custo total do aluguel em BRL.'),
-  pricingStrategy: z
-    .string()
-    .describe(
-      'Estratégia de preços atual para as pizzas, incluindo preço médio por pizza e descontos oferecidos.'
-    ),
-});
-export type FinancialRecommendationsInput = z.infer<typeof FinancialRecommendationsInputSchema>;
-
-const FinancialRecommendationsOutputSchema = z.object({
-  recommendations: z.string().describe('Recomendações geradas por IA para melhorar a lucratividade.'),
-});
-export type FinancialRecommendationsOutput = z.infer<typeof FinancialRecommendationsOutputSchema>;
+import {
+  FinancialRecommendationsInput,
+  FinancialRecommendationsInputSchema,
+  FinancialRecommendationsOutput,
+  FinancialRecommendationsOutputSchema,
+} from '@/ai/schemas/financial-recommendations';
 
 export async function getFinancialRecommendations(
   input: FinancialRecommendationsInput
@@ -46,17 +28,19 @@ const prompt = ai.definePrompt({
   output: {schema: FinancialRecommendationsOutputSchema},
   prompt: `Você é um consultor financeiro para uma pizzaria. Analise os dados de receita e despesas fornecidos para oferecer recomendações práticas para melhorar a lucratividade.
 
-Receita: {{{revenue}}} BRL
-Despesas: {{{expenses}}} BRL
-Custos de Ingredientes: {{{ingredientCosts}}} BRL
-Custos com Salários: {{{wageCosts}}} BRL
-Custos com Aluguel: {{{rentCosts}}} BRL
-Estratégia de Preços: {{{pricingStrategy}}}
+Dados Financeiros:
+- Receita: {{{revenue}}} BRL
+- Despesas: {{{expenses}}} BRL
+- Custos de Ingredientes: {{{ingredientCosts}}} BRL
+- Custos com Salários: {{{wageCosts}}} BRL
+- Custos com Aluguel: {{{rentCosts}}} BRL
+- Estratégia de Preços: {{{pricingStrategy}}}
 
 Com base nessas informações, forneça recomendações sobre ajustes de custos ou estratégias de preços para melhorar a lucratividade.
 Dê exemplos concretos de mudanças que podem ser feitas.
 Responda em português do Brasil.
-`, safetySettings: [
+`,
+  safetySettings: [
     {
       category: 'HARM_CATEGORY_HATE_SPEECH',
       threshold: 'BLOCK_ONLY_HIGH',
@@ -84,6 +68,11 @@ const financialRecommendationsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error(
+        'A IA não conseguiu gerar uma recomendação. Verifique os dados e tente novamente.'
+      );
+    }
+    return output;
   }
 );
