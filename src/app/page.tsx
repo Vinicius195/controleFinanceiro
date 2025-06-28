@@ -25,41 +25,41 @@ import { ProfitChart } from "@/components/profit-chart";
 
 const kpiData = [
   {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    change: "+20.1% from last month",
+    title: "Receita Total",
+    value: "R$45.231,89",
+    change: "+20.1% do último mês",
     icon: <DollarSign className="h-4 w-4 text-muted-foreground" />,
   },
   {
-    title: "Total Expenses",
-    value: "$28,123.50",
-    change: "+18.1% from last month",
+    title: "Despesas Totais",
+    value: "R$28.123,50",
+    change: "+18.1% do último mês",
     icon: <TrendingDown className="h-4 w-4 text-muted-foreground" />,
   },
   {
-    title: "Profit",
-    value: "$17,108.39",
-    change: "+22.4% from last month",
+    title: "Lucro",
+    value: "R$17.108,39",
+    change: "+22.4% do último mês",
     icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
   },
   {
-    title: "Profit Margin",
+    title: "Margem de Lucro",
     value: "37.8%",
-    change: "+1.2% from last month",
+    change: "+1.2% do último mês",
     icon: <Pizza className="h-4 w-4 text-muted-foreground" />,
   },
 ];
 
 const revenueData = [
-  { channel: "Online Orders", amount: "$15,231.50", date: "Month-to-date" },
-  { channel: "In-Store", amount: "$25,000.39", date: "Month-to-date" },
-  { channel: "Catering", amount: "$5,000.00", date: "Month-to-date" },
+  { channel: "Pedidos Online", amount: "R$15.231,50" },
+  { channel: "Na Loja", amount: "R$25.000,39" },
+  { channel: "Catering", amount: "R$5.000,00" },
 ];
 
 const expenseData = [
-  { category: "Ingredients", amount: "$12,500.00", date: "Month-to-date" },
-  { category: "Wages", amount: "$10,623.50", date: "Month-to-date" },
-  { category: "Rent & Utilities", amount: "$5,000.00", date: "Month-to-date" },
+  { category: "Ingredientes", amount: "R$12.500,00" },
+  { category: "Salários", amount: "R$10.623,50" },
+  { category: "Aluguel e Contas", amount: "R$5.000,00" },
 ];
 
 export default function Home() {
@@ -92,9 +92,9 @@ export default function Home() {
           <div className="md:col-span-4 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Profit Margin Over Time</CardTitle>
+                <CardTitle>Margem de Lucro ao Longo do Tempo</CardTitle>
                 <CardDescription>
-                  A look at your profit trends for the last 7 months.
+                  Uma análise das suas tendências de lucro nos últimos 7 meses.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -104,14 +104,14 @@ export default function Home() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Revenue Channels</CardTitle>
+                  <CardTitle>Canais de Receita</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Channel</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead>Canal</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -129,14 +129,14 @@ export default function Home() {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Expense Categories</CardTitle>
+                  <CardTitle>Categorias de Despesa</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Category</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -158,11 +158,10 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BrainCircuit className="h-5 w-5 text-accent" />
-                AI Financial Advisor
+                Consultor Financeiro de IA
               </CardTitle>
               <CardDescription>
-                Input your latest financial data to get AI-powered
-                recommendations for improving profitability.
+                Insira seus dados financeiros mais recentes para obter recomendações da IA para melhorar a lucratividade.
               </CardDescription>
             </CardHeader>
             <CardContent>

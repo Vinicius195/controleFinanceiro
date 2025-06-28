@@ -12,10 +12,10 @@ import {
 
 const chartData = [
   { name: "Jan", profit: 4000 },
-  { name: "Feb", profit: 3000 },
+  { name: "Fev", profit: 3000 },
   { name: "Mar", profit: 5000 },
-  { name: "Apr", profit: 4500 },
-  { name: "May", profit: 6000 },
+  { name: "Abr", profit: 4500 },
+  { name: "Mai", profit: 6000 },
   { name: "Jun", profit: 5500 },
   { name: "Jul", profit: 7000 },
 ];
@@ -37,7 +37,7 @@ export function ProfitChart() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `R$${value}`}
         />
         <Tooltip
           cursor={{ fill: "hsl(var(--accent) / 0.2)" }}

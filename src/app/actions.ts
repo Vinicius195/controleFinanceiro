@@ -4,25 +4,25 @@ import { getFinancialRecommendations, FinancialRecommendationsInput } from '@/ai
 import { z } from 'zod';
 
 const FinancialRecommendationsInputSchema = z.object({
-  revenue: z.number().min(0, "Revenue must be positive."),
-  expenses: z.number().min(0, "Expenses must be positive."),
-  ingredientCosts: z.number().min(0, "Ingredient costs must be positive."),
-  wageCosts: z.number().min(0, "Wage costs must be positive."),
-  rentCosts: z.number().min(0, "Rent costs must be positive."),
-  pricingStrategy: z.string().min(1, "Pricing strategy is required."),
+  revenue: z.number().min(0, "A receita deve ser positiva."),
+  expenses: z.number().min(0, "As despesas devem ser positivas."),
+  ingredientCosts: z.number().min(0, "Os custos com ingredientes devem ser positivos."),
+  wageCosts: z.number().min(0, "Os custos com salários devem ser positivos."),
+  rentCosts: z.number().min(0, "Os custos com aluguel devem ser positivos."),
+  pricingStrategy: z.string().min(1, "A estratégia de preços é obrigatória."),
 });
 
 export async function getRecommendationsAction(data: FinancialRecommendationsInput) {
   const validation = FinancialRecommendationsInputSchema.safeParse(data);
   if (!validation.success) {
-    return { success: false, error: "Invalid input." };
+    return { success: false, error: "Dados inválidos." };
   }
 
   try {
     const result = await getFinancialRecommendations(validation.data);
     return { success: true, data: result };
   } catch (error) {
-    console.error("Error getting financial recommendations:", error);
-    return { success: false, error: "Failed to get recommendations from AI. Please try again." };
+    console.error("Erro ao obter recomendações financeiras:", error);
+    return { success: false, error: "Falha ao obter recomendações da IA. Por favor, tente novamente." };
   }
 }

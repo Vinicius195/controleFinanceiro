@@ -23,12 +23,12 @@ import { getRecommendationsAction } from "@/app/actions";
 import { Separator } from "./ui/separator";
 
 const formSchema = z.object({
-  revenue: z.coerce.number().min(0, "Revenue must be a positive number."),
-  expenses: z.coerce.number().min(0, "Expenses must be a positive number."),
-  ingredientCosts: z.coerce.number().min(0, "Ingredient costs must be a positive number."),
-  wageCosts: z.coerce.number().min(0, "Wage costs must be a positive number."),
-  rentCosts: z.coerce.number().min(0, "Rent costs must be a positive number."),
-  pricingStrategy: z.string().min(10, "Please describe your pricing strategy in at least 10 characters."),
+  revenue: z.coerce.number().min(0, "A receita deve ser um número positivo."),
+  expenses: z.coerce.number().min(0, "As despesas devem ser um número positivo."),
+  ingredientCosts: z.coerce.number().min(0, "O custo com ingredientes deve ser um número positivo."),
+  wageCosts: z.coerce.number().min(0, "O custo com salários deve ser um número positivo."),
+  rentCosts: z.coerce.number().min(0, "O custo com aluguel deve ser um número positivo."),
+  pricingStrategy: z.string().min(10, "Por favor, descreva sua estratégia de preços em pelo menos 10 caracteres."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,12 +41,12 @@ export function FinancialForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      revenue: 25000,
-      expenses: 15000,
-      ingredientCosts: 8000,
-      wageCosts: 5000,
-      rentCosts: 2000,
-      pricingStrategy: "Average price per pizza is $15. We offer a 10% discount on orders over $50.",
+      revenue: 45000,
+      expenses: 28000,
+      ingredientCosts: 12000,
+      wageCosts: 10000,
+      rentCosts: 6000,
+      pricingStrategy: "O preço médio por pizza é de R$55. Oferecemos 10% de desconto em pedidos acima de R$120.",
     },
   });
 
@@ -61,7 +61,7 @@ export function FinancialForm() {
     } else {
       toast({
         variant: "destructive",
-        title: "An error occurred",
+        title: "Ocorreu um erro",
         description: response.error,
       });
     }
@@ -79,9 +79,9 @@ export function FinancialForm() {
               name="revenue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Revenue ($)</FormLabel>
+                  <FormLabel>Receita Total (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 45000" {...field} />
+                    <Input type="number" placeholder="ex: 45000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -92,9 +92,9 @@ export function FinancialForm() {
               name="expenses"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Expenses ($)</FormLabel>
+                  <FormLabel>Despesas Totais (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 28000" {...field} />
+                    <Input type="number" placeholder="ex: 28000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -105,9 +105,9 @@ export function FinancialForm() {
               name="ingredientCosts"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ingredient Costs ($)</FormLabel>
+                  <FormLabel>Custos com Ingredientes (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 12000" {...field} />
+                    <Input type="number" placeholder="ex: 12000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,9 +118,9 @@ export function FinancialForm() {
               name="wageCosts"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Wage Costs ($)</FormLabel>
+                  <FormLabel>Custos com Salários (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 10000" {...field} />
+                    <Input type="number" placeholder="ex: 10000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,9 +131,9 @@ export function FinancialForm() {
               name="rentCosts"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rent Costs ($)</FormLabel>
+                  <FormLabel>Custos de Aluguel (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 6000" {...field} />
+                    <Input type="number" placeholder="ex: 6000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -145,9 +145,9 @@ export function FinancialForm() {
             name="pricingStrategy"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pricing Strategy</FormLabel>
+                <FormLabel>Estratégia de Preços</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Describe your current pricing strategy..." {...field} />
+                  <Textarea placeholder="Descreva sua estratégia de preços atual..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -158,10 +158,10 @@ export function FinancialForm() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Getting Recommendations...
+                Obtendo Recomendações...
               </>
             ) : (
-              "Get Recommendations"
+              "Obter Recomendações"
             )}
           </Button>
         </form>
@@ -170,7 +170,7 @@ export function FinancialForm() {
       {result && (
         <div className="space-y-4 pt-4">
             <Separator />
-            <h3 className="text-lg font-semibold font-headline">AI Recommendations</h3>
+            <h3 className="text-lg font-semibold font-headline">Recomendações da IA</h3>
             <div className="p-4 bg-muted/50 rounded-lg border border-dashed text-sm text-muted-foreground whitespace-pre-wrap">
                 {result}
             </div>

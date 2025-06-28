@@ -3,11 +3,11 @@
 'use server';
 
 /**
- * @fileOverview Provides financial recommendations based on revenue and expense data.
+ * @fileOverview Fornece recomendações financeiras com base em dados de receitas e despesas.
  *
- * - getFinancialRecommendations - A function that takes revenue and expense data and returns financial recommendations.
- * - FinancialRecommendationsInput - The input type for the getFinancialRecommendations function.
- * - FinancialRecommendationsOutput - The return type for the getFinancialRecommendations function.
+ * - getFinancialRecommendations - Uma função que recebe dados de receitas e despesas e retorna recomendações financeiras.
+ * - FinancialRecommendationsInput - O tipo de entrada para a função getFinancialRecommendations.
+ * - FinancialRecommendationsOutput - O tipo de retorno para a função getFinancialRecommendations.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,21 +16,21 @@ import {z} from 'genkit';
 const FinancialRecommendationsInputSchema = z.object({
   revenue: z
     .number()
-    .describe('Total revenue from all sales channels in USD.'),
-  expenses: z.number().describe('Total expenses including ingredients, wages, and rent in USD.'),
-  ingredientCosts: z.number().describe('Total cost of ingredients in USD.'),
-  wageCosts: z.number().describe('Total wage costs in USD.'),
-  rentCosts: z.number().describe('Total rent costs in USD.'),
+    .describe('Receita total de todos os canais de venda em BRL.'),
+  expenses: z.number().describe('Despesas totais, incluindo ingredientes, salários e aluguel em BRL.'),
+  ingredientCosts: z.number().describe('Custo total dos ingredientes em BRL.'),
+  wageCosts: z.number().describe('Custo total com salários em BRL.'),
+  rentCosts: z.number().describe('Custo total do aluguel em BRL.'),
   pricingStrategy: z
     .string()
     .describe(
-      'Current pricing strategy for pizzas, including average price per pizza and any discounts offered.'
+      'Estratégia de preços atual para as pizzas, incluindo preço médio por pizza e descontos oferecidos.'
     ),
 });
 export type FinancialRecommendationsInput = z.infer<typeof FinancialRecommendationsInputSchema>;
 
 const FinancialRecommendationsOutputSchema = z.object({
-  recommendations: z.string().describe('AI-generated recommendations to improve profitability.'),
+  recommendations: z.string().describe('Recomendações geradas por IA para melhorar a lucratividade.'),
 });
 export type FinancialRecommendationsOutput = z.infer<typeof FinancialRecommendationsOutputSchema>;
 
@@ -44,17 +44,18 @@ const prompt = ai.definePrompt({
   name: 'financialRecommendationsPrompt',
   input: {schema: FinancialRecommendationsInputSchema},
   output: {schema: FinancialRecommendationsOutputSchema},
-  prompt: `You are a financial advisor for a pizzeria. Analyze the revenue and expense data provided to offer actionable recommendations to improve profitability.
+  prompt: `Você é um consultor financeiro para uma pizzaria. Analise os dados de receita e despesas fornecidos para oferecer recomendações práticas para melhorar a lucratividade.
 
-Revenue: {{{revenue}}} USD
-Expenses: {{{expenses}}} USD
-Ingredient Costs: {{{ingredientCosts}}} USD
-Wage Costs: {{{wageCosts}}} USD
-Rent Costs: {{{rentCosts}}} USD
-Pricing Strategy: {{{pricingStrategy}}}
+Receita: {{{revenue}}} BRL
+Despesas: {{{expenses}}} BRL
+Custos de Ingredientes: {{{ingredientCosts}}} BRL
+Custos com Salários: {{{wageCosts}}} BRL
+Custos com Aluguel: {{{rentCosts}}} BRL
+Estratégia de Preços: {{{pricingStrategy}}}
 
-Based on this information, provide recommendations on cost adjustments or pricing strategies to improve profitability.
-Give concrete examples of changes that could be made.
+Com base nessas informações, forneça recomendações sobre ajustes de custos ou estratégias de preços para melhorar a lucratividade.
+Dê exemplos concretos de mudanças que podem ser feitas.
+Responda em português do Brasil.
 `, safetySettings: [
     {
       category: 'HARM_CATEGORY_HATE_SPEECH',
