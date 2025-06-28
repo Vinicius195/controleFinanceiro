@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from "react";
+import type { FinancialRecommendationsInput } from "@/ai/schemas/financial-recommendations";
 import {
   Card,
   CardContent,
@@ -23,46 +27,59 @@ import {
 import { FinancialForm } from "@/components/financial-form";
 import { ProfitChart } from "@/components/profit-chart";
 
-const kpiData = [
-  {
-    title: "Receita Total",
-    value: "R$45.231,89",
-    change: "+20.1% do último mês",
-    icon: <DollarSign className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    title: "Despesas Totais",
-    value: "R$28.123,50",
-    change: "+18.1% do último mês",
-    icon: <TrendingDown className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    title: "Lucro",
-    value: "R$17.108,39",
-    change: "+22.4% do último mês",
-    icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-  },
-  {
-    title: "Margem de Lucro",
-    value: "37.8%",
-    change: "+1.2% do último mês",
-    icon: <Pizza className="h-4 w-4 text-muted-foreground" />,
-  },
-];
-
-const revenueData = [
-  { channel: "Pedidos Online", amount: "R$15.231,50" },
-  { channel: "Na Loja", amount: "R$25.000,39" },
-  { channel: "Catering", amount: "R$5.000,00" },
-];
-
-const expenseData = [
-  { category: "Ingredientes", amount: "R$12.500,00" },
-  { category: "Salários", amount: "R$10.623,50" },
-  { category: "Aluguel e Contas", amount: "R$5.000,00" },
-];
-
 export default function Home() {
+  const [financialData, setFinancialData] = useState<FinancialRecommendationsInput>({
+    revenue: 45000,
+    expenses: 28000,
+    ingredientCosts: 12000,
+    wageCosts: 10000,
+    rentCosts: 6000,
+    pricingStrategy: "O preço médio por pizza é de R$55. Oferecemos 10% de desconto em pedidos acima de R$120.",
+  });
+  
+  const handleDataChange = (newData: FinancialRecommendationsInput) => {
+    setFinancialData(newData);
+  };
+
+  const formatCurrency = (value: number) => {
+    if (isNaN(value)) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(0);
+    }
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  }
+
+  const profit = financialData.revenue - financialData.expenses;
+  const profitMargin = financialData.revenue > 0 ? (profit / financialData.revenue) * 100 : 0;
+
+  const kpiData = [
+    {
+      title: "Receita Total",
+      value: formatCurrency(financialData.revenue),
+      icon: <DollarSign className="h-4 w-4 text-muted-foreground" />,
+    },
+    {
+      title: "Despesas Totais",
+      value: formatCurrency(financialData.expenses),
+      icon: <TrendingDown className="h-4 w-4 text-muted-foreground" />,
+    },
+    {
+      title: "Lucro",
+      value: formatCurrency(profit),
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+    },
+    {
+      title: "Margem de Lucro",
+      value: `${profitMargin.toFixed(1)}%`,
+      icon: <Pizza className="h-4 w-4 text-muted-foreground" />,
+    },
+  ];
+
+  const expenseData = [
+    { category: "Ingredientes", amount: formatCurrency(financialData.ingredientCosts) },
+    { category: "Salários", amount: formatCurrency(financialData.wageCosts) },
+    { category: "Aluguel e Contas", amount: formatCurrency(financialData.rentCosts) },
+  ];
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
@@ -83,7 +100,6 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{kpi.value}</div>
-                <p className="text-xs text-muted-foreground">{kpi.change}</p>
               </CardContent>
             </Card>
           ))}
@@ -101,58 +117,31 @@ export default function Home() {
                 <ProfitChart />
               </CardContent>
             </Card>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Canais de Receita</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Canal</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
+            <Card>
+              <CardHeader>
+                <CardTitle>Categorias de Despesa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expenseData.map((item) => (
+                      <TableRow key={item.category}>
+                        <TableCell>{item.category}</TableCell>
+                        <TableCell className="text-right">
+                          {item.amount}
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {revenueData.map((item) => (
-                        <TableRow key={item.channel}>
-                          <TableCell>{item.channel}</TableCell>
-                          <TableCell className="text-right">
-                            {item.amount}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Categorias de Despesa</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {expenseData.map((item) => (
-                        <TableRow key={item.category}>
-                          <TableCell>{item.category}</TableCell>
-                          <TableCell className="text-right">
-                            {item.amount}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </div>
           <Card className="md:col-span-3">
             <CardHeader>
@@ -161,11 +150,11 @@ export default function Home() {
                 Consultor Financeiro de IA
               </CardTitle>
               <CardDescription>
-                Insira seus dados financeiros mais recentes para obter recomendações da IA para melhorar a lucratividade.
+                Insira seus dados para ver o painel se atualizar e obter recomendações da IA.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <FinancialForm />
+              <FinancialForm data={financialData} onDataChange={handleDataChange} />
             </CardContent>
           </Card>
         </div>

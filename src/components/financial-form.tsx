@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getRecommendationsAction } from "@/app/actions";
 import { Separator } from "./ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { FinancialRecommendationsInputSchema } from "@/ai/schemas/financial-recommendations";
+import { FinancialRecommendationsInput, FinancialRecommendationsInputSchema } from "@/ai/schemas/financial-recommendations";
 
 const formSchema = FinancialRecommendationsInputSchema.extend({
   revenue: z.coerce.number(),
@@ -32,22 +32,30 @@ const formSchema = FinancialRecommendationsInputSchema.extend({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function FinancialForm() {
+interface FinancialFormProps {
+  data: FinancialRecommendationsInput;
+  onDataChange: (data: FinancialRecommendationsInput) => void;
+}
+
+export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      revenue: 45000,
-      expenses: 28000,
-      ingredientCosts: 12000,
-      wageCosts: 10000,
-      rentCosts: 6000,
-      pricingStrategy: "O preço médio por pizza é de R$55. Oferecemos 10% de desconto em pedidos acima de R$120.",
-    },
+    values: data,
   });
+
+  const { watch } = form;
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onDataChange(value as FinancialRecommendationsInput);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onDataChange]);
+
 
   async function onSubmit(values: FormValues) {
     setLoading(true);
