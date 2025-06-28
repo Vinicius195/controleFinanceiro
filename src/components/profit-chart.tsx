@@ -8,22 +8,33 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Line,
+  ComposedChart
 } from "recharts";
+import { useMemo } from 'react';
+import type { DailyEntry } from '@/contexts/FinancialDataContext';
 
-const chartData = [
-  { name: "Jan", profit: 4000 },
-  { name: "Fev", profit: 3000 },
-  { name: "Mar", profit: 5000 },
-  { name: "Abr", profit: 4500 },
-  { name: "Mai", profit: 6000 },
-  { name: "Jun", profit: 5500 },
-  { name: "Jul", profit: 7000 },
-];
+interface ProfitChartProps {
+    data: DailyEntry[];
+}
 
-export function ProfitChart() {
+export function ProfitChart({ data }: ProfitChartProps) {
+  const chartData = useMemo(() => {
+    return data.map(entry => {
+        const revenue = entry.dineInRevenue + entry.deliveryRevenue + entry.takeoutRevenue;
+        const expenses = entry.ingredientCosts + entry.wageCosts + entry.rentCosts + entry.otherCosts;
+        return {
+            name: entry.date.substring(5).replace(/-/g, '/'), // Show MM/DD
+            Lucro: revenue - expenses,
+            Receita: revenue,
+            Despesas: expenses,
+        }
+    }).sort((a,b) => a.name.localeCompare(b.name));
+  }, [data]);
+    
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
+      <ComposedChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="name"
@@ -37,7 +48,7 @@ export function ProfitChart() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `R$${value}`}
+          tickFormatter={(value) => `R$${value / 1000}k`}
         />
         <Tooltip
           cursor={{ fill: "hsl(var(--accent) / 0.2)" }}
@@ -45,13 +56,15 @@ export function ProfitChart() {
             backgroundColor: "hsl(var(--background))",
             borderColor: "hsl(var(--border))",
           }}
+           formatter={(value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)}
         />
         <Bar
-          dataKey="profit"
+          dataKey="Lucro"
           fill="hsl(var(--primary))"
           radius={[4, 4, 0, 0]}
         />
-      </BarChart>
+        <Line type="monotone" dataKey="Receita" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }
