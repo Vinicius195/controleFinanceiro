@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getRecommendationsAction } from "@/app/actions";
 import { Separator } from "./ui/separator";
+import { Slider } from "@/components/ui/slider";
 
 const formSchema = z.object({
   revenue: z.coerce.number().min(0, "A receita deve ser um número positivo."),
@@ -72,74 +71,157 @@ export function FinancialForm() {
   return (
     <div className="space-y-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="revenue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Receita Total (R$)</FormLabel>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="revenue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Receita Total</FormLabel>
+                <div className="flex items-center gap-4">
                   <FormControl>
-                    <Input type="number" placeholder="ex: 45000" {...field} />
+                    <Slider
+                      min={0}
+                      max={100000}
+                      step={1000}
+                      value={[field.value]}
+                      onValueChange={(value) => field.onChange(value[0])}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="expenses"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Despesas Totais (R$)</FormLabel>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">R$</span>
+                    <Input
+                      type="number"
+                      className="w-32 pl-8"
+                      {...field}
+                    />
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="expenses"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Despesas Totais</FormLabel>
+                <div className="flex items-center gap-4">
                   <FormControl>
-                    <Input type="number" placeholder="ex: 28000" {...field} />
+                    <Slider
+                      min={0}
+                      max={100000}
+                      step={1000}
+                      value={[field.value]}
+                      onValueChange={(value) => field.onChange(value[0])}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ingredientCosts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Custos com Ingredientes (R$)</FormLabel>
+                   <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">R$</span>
+                    <Input
+                      type="number"
+                      className="w-32 pl-8"
+                      {...field}
+                    />
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="ingredientCosts"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Custos com Ingredientes</FormLabel>
+                 <div className="flex items-center gap-4">
                   <FormControl>
-                    <Input type="number" placeholder="ex: 12000" {...field} />
+                    <Slider
+                      min={0}
+                      max={50000}
+                      step={500}
+                      value={[field.value]}
+                      onValueChange={(value) => field.onChange(value[0])}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="wageCosts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Custos com Salários (R$)</FormLabel>
+                   <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">R$</span>
+                    <Input
+                      type="number"
+                      className="w-32 pl-8"
+                      {...field}
+                    />
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="wageCosts"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Custos com Salários</FormLabel>
+                 <div className="flex items-center gap-4">
                   <FormControl>
-                    <Input type="number" placeholder="ex: 10000" {...field} />
+                    <Slider
+                      min={0}
+                      max={50000}
+                      step={500}
+                      value={[field.value]}
+                      onValueChange={(value) => field.onChange(value[0])}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="rentCosts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Custos de Aluguel (R$)</FormLabel>
+                   <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">R$</span>
+                    <Input
+                      type="number"
+                      className="w-32 pl-8"
+                      {...field}
+                    />
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="rentCosts"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Custos com Aluguel</FormLabel>
+                 <div className="flex items-center gap-4">
                   <FormControl>
-                    <Input type="number" placeholder="ex: 6000" {...field} />
+                    <Slider
+                      min={0}
+                      max={20000}
+                      step={500}
+                      value={[field.value]}
+                      onValueChange={(value) => field.onChange(value[0])}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                   <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">R$</span>
+                    <Input
+                      type="number"
+                      className="w-32 pl-8"
+                      {...field}
+                    />
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
           <FormField
             control={form.control}
             name="pricingStrategy"
