@@ -87,12 +87,12 @@ export default function DetailedControlPage() {
                          <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={weeklyChartData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false}/>
-                                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value: number) => `R$${value/1000}k`} />
+                                <XAxis dataKey="name" stroke="hsl(var(--foreground))" opacity={0.6} fontSize={12} tickLine={false} axisLine={false}/>
+                                <YAxis stroke="hsl(var(--foreground))" opacity={0.6} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value: number) => `R$${value/1000}k`} />
                                 <Tooltip
                                     cursor={{ fill: "hsl(var(--accent) / 0.2)" }}
                                     formatter={(value: number) => formatCurrency(value)}
-                                    contentStyle={{ backgroundColor: "hsl(var(--background))", borderColor: "hsl(var(--border))" }}
+                                    contentStyle={{ backgroundColor: "hsl(var(--background))", borderColor: "hsl(var(--border))", borderRadius: "var(--radius)" }}
                                 />
                                 <Legend wrapperStyle={{fontSize: "12px"}}/>
                                 <Bar dataKey="Receita" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
@@ -122,9 +122,9 @@ export default function DetailedControlPage() {
                                         return (
                                             <TableRow key={entry.date}>
                                                 <TableCell>{format(new Date(entry.date.replace(/-/g, '/')), "dd/MM/yy (EEE)", { locale: ptBR })}</TableCell>
-                                                <TableCell className="text-right text-green-600">{formatCurrency(revenue)}</TableCell>
-                                                <TableCell className="text-right text-red-600">{formatCurrency(expenses)}</TableCell>
-                                                <TableCell className={`text-right font-bold ${profit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>{formatCurrency(profit)}</TableCell>
+                                                <TableCell className="text-right text-emerald-500">{formatCurrency(revenue)}</TableCell>
+                                                <TableCell className="text-right text-red-500">{formatCurrency(expenses)}</TableCell>
+                                                <TableCell className={`text-right font-bold ${profit >= 0 ? 'text-sky-500' : 'text-red-500'}`}>{formatCurrency(profit)}</TableCell>
                                             </TableRow>
                                         );
                                     }) : (
