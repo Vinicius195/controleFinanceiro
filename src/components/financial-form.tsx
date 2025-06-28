@@ -20,8 +20,13 @@ import { useToast } from "@/hooks/use-toast";
 import { getRecommendationsAction } from "@/app/actions";
 import { Slider } from "@/components/ui/slider";
 import { FinancialRecommendationsInput, FinancialRecommendationsInputSchema } from "@/ai/schemas/financial-recommendations";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 
 const formSchema = FinancialRecommendationsInputSchema.omit({ revenue: true, expenses: true }).extend({
@@ -102,14 +107,15 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
   return (
     <div className="space-y-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Receitas</CardTitle>
-              <CardDescription>Insira os valores das suas fontes de receita.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <FormField
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Accordion type="multiple" className="w-full space-y-2" defaultValue={['receitas', 'despesas']}>
+            <AccordionItem value="receitas" className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+              <AccordionTrigger className="py-0 text-lg font-medium hover:no-underline">Receitas</AccordionTrigger>
+              <AccordionContent className="pt-6 space-y-4">
+                <p className="text-sm text-muted-foreground -mt-2 mb-4">
+                  Ajuste os valores das suas fontes de receita para simular cenários.
+                </p>
+                <FormField
                 control={form.control}
                 name="dineInRevenue"
                 render={({ field }) => (
@@ -198,16 +204,16 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Despesas</CardTitle>
-              <CardDescription>Insira os valores das suas principais despesas.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="despesas" className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+              <AccordionTrigger className="py-0 text-lg font-medium hover:no-underline">Despesas</AccordionTrigger>
+              <AccordionContent className="pt-6 space-y-4">
+                <p className="text-sm text-muted-foreground -mt-2 mb-4">
+                  Ajuste os valores das suas principais despesas.
+                </p>
+                <FormField
                 control={form.control}
                 name="ingredientCosts"
                 render={({ field }) => (
@@ -296,57 +302,58 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
+              </AccordionContent>
+            </AccordionItem>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Estratégia e Produtos</CardTitle>
-              <CardDescription>Forneça mais contexto para a IA.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <FormField
-                control={form.control}
-                name="pricingStrategy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estratégia de Preços</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Descreva sua estratégia de preços atual..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <AccordionItem value="estrategia" className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+              <AccordionTrigger className="py-0 text-lg font-medium hover:no-underline">Estratégia e Produtos</AccordionTrigger>
+              <AccordionContent className="pt-6 space-y-4">
+                <p className="text-sm text-muted-foreground -mt-2 mb-4">
+                  Forneça mais contexto para a IA dar recomendações mais precisas.
+                </p>
+                <FormField
+                  control={form.control}
+                  name="pricingStrategy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estratégia de Preços</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Ex: Preço médio de R$55, com promoção de 10% para pedidos acima de R$120..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="recipes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Principais Receitas de Pizza</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Descreva suas principais pizzas, ingredientes, etc."
-                        rows={5}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+                <FormField
+                  control={form.control}
+                  name="recipes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Principais Receitas de Pizza</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ex: 1. Calabresa: molho, muçarela, calabresa...&#10;2. Frango: molho, muçarela, frango..."
+                          rows={5}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Obtendo Recomendações...
+                Analisando Cenário...
               </>
             ) : (
-              "Obter Recomendações"
+              "Obter Recomendações da IA"
             )}
           </Button>
         </form>
