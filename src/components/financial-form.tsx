@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { BrainCircuit, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,10 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getRecommendationsAction } from "@/app/actions";
-import { Separator } from "./ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { FinancialRecommendationsInput, FinancialRecommendationsInputSchema } from "@/ai/schemas/financial-recommendations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 
 const formSchema = FinancialRecommendationsInputSchema.omit({ revenue: true, expenses: true }).extend({
@@ -42,7 +42,8 @@ interface FinancialFormProps {
 
 export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -71,7 +72,7 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
 
   async function onSubmit(values: FormValues) {
     setLoading(true);
-    setResult(null);
+    setRecommendations(null);
 
     const revenue = values.dineInRevenue + values.deliveryRevenue + values.takeoutRevenue;
     const expenses = values.ingredientCosts + values.wageCosts + values.rentCosts;
@@ -85,7 +86,8 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
     const response = await getRecommendationsAction(fullData);
 
     if (response.success && response.data) {
-      setResult(response.data.recommendations);
+      setRecommendations(response.data.recommendations);
+      setIsDialogOpen(true);
     } else {
       toast({
         variant: "destructive",
@@ -350,15 +352,29 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
         </form>
       </Form>
 
-      {result && (
-        <div className="space-y-4 pt-4">
-            <Separator />
-            <h3 className="text-lg font-semibold font-headline">Recomendações da IA</h3>
-            <div className="p-4 bg-muted/50 rounded-lg border border-dashed text-sm text-muted-foreground whitespace-pre-wrap">
-                {result}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <BrainCircuit className="h-6 w-6 text-accent" />
+                Recomendações da IA
+              </DialogTitle>
+              <DialogDescription>
+                Com base nos dados fornecidos, aqui estão algumas sugestões para otimizar a lucratividade da sua pizzaria.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[60vh] overflow-y-auto p-1 pr-4">
+                <div className="p-4 bg-muted/50 rounded-lg border text-sm text-muted-foreground whitespace-pre-wrap">
+                    {recommendations}
+                </div>
             </div>
-        </div>
-      )}
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button">Fechar</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </div>
   );
 }
