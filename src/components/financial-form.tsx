@@ -262,6 +262,24 @@ export function FinancialForm({ data, onDataChange }: FinancialFormProps) {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="revenueBreakdown"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Detalhamento da Receita</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Ex: 60% delivery, 40% salão ou Pizza X vende mais..."
+                    rows={3}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
               <>

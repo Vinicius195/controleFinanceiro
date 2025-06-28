@@ -43,6 +43,12 @@ export const FinancialRecommendationsInputSchema = z.object({
     .describe(
       'Descreva as principais receitas de pizza, incluindo ingredientes. Isso ajudará a IA a dar sugestões mais específicas.'
     ),
+  revenueBreakdown: z
+    .string()
+    .min(10, 'O detalhamento da receita deve ter pelo menos 10 caracteres.')
+    .describe(
+      'Detalhe as fontes de receita. Ex: 60% delivery, 40% salão. Ou: Pizza de Calabresa representa 50% da receita.'
+    ),
 });
 export type FinancialRecommendationsInput = z.infer<typeof FinancialRecommendationsInputSchema>;
 

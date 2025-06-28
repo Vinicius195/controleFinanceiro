@@ -36,6 +36,7 @@ export default function Home() {
     rentCosts: 6000,
     pricingStrategy: "O preço médio por pizza é de R$55. Oferecemos 10% de desconto em pedidos acima de R$120.",
     recipes: "1. Pizza de Calabresa: Molho, muçarela, calabresa e cebola.\n2. Pizza de Frango com Catupiry: Molho, muçarela, frango desfiado e catupiry.\n3. Pizza Margherita: Molho, muçarela, tomate e manjericão.",
+    revenueBreakdown: "60% da receita vem de delivery, 30% do salão e 10% de pedidos online. As pizzas de calabresa e frango são as mais vendidas.",
   });
   
   const handleDataChange = (newData: FinancialRecommendationsInput) => {

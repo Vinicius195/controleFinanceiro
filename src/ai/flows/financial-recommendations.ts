@@ -31,6 +31,7 @@ const prompt = ai.definePrompt({
 Dados Financeiros:
 - Receita: {{{revenue}}} BRL
 - Despesas: {{{expenses}}} BRL
+- Detalhamento da Receita: {{{revenueBreakdown}}}
 - Custos de Ingredientes: {{{ingredientCosts}}} BRL
 - Custos com Salários: {{{wageCosts}}} BRL
 - Custos com Aluguel: {{{rentCosts}}} BRL
@@ -40,9 +41,9 @@ Estratégia e Produtos:
 - Principais Receitas de Pizza: {{{recipes}}}
 
 Com base em todas essas informações, forneça recomendações sobre:
-1.  **Otimização de Custos:** Analise os custos de ingredientes em relação às receitas de pizza. Sugira substituições ou negociações com fornecedores.
-2.  **Estratégia de Preços:** Com base nas receitas, avalie se os preços estão adequados. Sugira ajustes, combos ou promoções para as pizzas mais populares ou lucrativas.
-3.  **Ações Concretas:** Dê exemplos práticos de mudanças que podem ser implementadas.
+1.  **Otimização de Custos:** Analise os custos de ingredientes em relação às receitas de pizza e ao detalhamento da receita. Sugira substituições ou negociações com fornecedores.
+2.  **Estratégia de Preços:** Com base nas receitas e no detalhamento de vendas, avalie se os preços estão adequados. Sugira ajustes, combos ou promoções para os canais ou produtos mais lucrativos.
+3.  **Ações Concretas:** Dê exemplos práticos de mudanças que podem ser implementadas para alavancar os pontos fortes identificados no detalhamento da receita.
 
 Responda em português do Brasil, de forma clara e organizada.
 `,
