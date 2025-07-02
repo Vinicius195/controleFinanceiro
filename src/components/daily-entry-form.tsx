@@ -34,12 +34,12 @@ type FormValues = z.infer<typeof FormSchema>;
 export function DailyEntryForm() {
     const { addOrUpdateEntry, getEntryByDate } = useFinancialData();
     const { toast } = useToast();
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            date: selectedDate,
+            date: new Date(),
             dineInRevenue: 0,
             deliveryRevenue: 0,
             takeoutRevenue: 0,
@@ -49,8 +49,15 @@ export function DailyEntryForm() {
             otherCosts: 0,
         },
     });
+
+    useEffect(() => {
+        // Set the date only on the client side to avoid hydration mismatch
+        setSelectedDate(new Date());
+    }, []);
     
     useEffect(() => {
+        if (!selectedDate) return; // Wait for the client-side date to be set
+
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
         const entry = getEntryByDate(dateStr);
         // Using parse to avoid timezone issues

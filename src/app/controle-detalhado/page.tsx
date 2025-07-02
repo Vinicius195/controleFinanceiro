@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, subWeeks, addWeeks } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
 import { useFinancialData, DailyEntry } from '@/contexts/FinancialDataContext';
 import { MainHeader } from '@/components/main-header';
@@ -15,12 +15,19 @@ import { DailyEntryForm } from '@/components/daily-entry-form';
 
 export default function DetailedControlPage() {
   const { entries } = useFinancialData();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
+  useEffect(() => {
+    // Set the date only on the client side to avoid hydration mismatch
+    setSelectedDate(new Date());
+  }, []);
+
+  const weekStart = useMemo(() => selectedDate ? startOfWeek(selectedDate, { weekStartsOn: 1 }) : null, [selectedDate]);
+  const weekEnd = useMemo(() => selectedDate ? endOfWeek(selectedDate, { weekStartsOn: 1 }) : null, [selectedDate]);
 
   const currentWeekEntries = useMemo(() => {
+    if (!weekStart || !weekEnd) return [];
+
     return entries
       .filter(entry => {
         const entryDate = new Date(entry.date);
@@ -34,6 +41,8 @@ export default function DetailedControlPage() {
   }, [entries, weekStart, weekEnd]);
   
   const weeklyChartData = useMemo(() => {
+    if (!weekStart || !weekEnd) return [];
+
     const daysInWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
     return daysInWeek.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
@@ -51,9 +60,21 @@ export default function DetailedControlPage() {
 
   const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  const handlePrevWeek = () => setSelectedDate(subWeeks(selectedDate, 1));
-  const handleNextWeek = () => setSelectedDate(addWeeks(selectedDate, 1));
+  const handlePrevWeek = () => selectedDate && setSelectedDate(subWeeks(selectedDate, 1));
+  const handleNextWeek = () => selectedDate && setSelectedDate(addWeeks(selectedDate, 1));
   
+  // Render a loader until the date is set on the client
+  if (!selectedDate || !weekStart || !weekEnd) {
+      return (
+        <div className="flex min-h-screen w-full flex-col">
+            <MainHeader />
+            <main className="flex flex-1 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </main>
+        </div>
+      );
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <MainHeader />
