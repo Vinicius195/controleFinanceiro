@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { subDays } from 'date-fns';
+import { PlusCircle } from 'lucide-react';
 
 // Componentes
 import MovimentacaoForm from '../components/MovimentacaoForm';
@@ -12,7 +13,8 @@ import FiltroPeriodo from '../components/FiltroPeriodo';
 import FiltroConta from '../components/FiltroConta';
 import GraficoFinanceiro from '../components/GraficoFinanceiro';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 
 export default function HomePage() {
   const [periodo, setPeriodo] = useState({
@@ -21,6 +23,7 @@ export default function HomePage() {
   });
   
   const [contaId, setContaId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const handleFilterChange = (inicio: Date, fim: Date) => {
     const adjustedFim = new Date(fim);
@@ -36,20 +39,40 @@ export default function HomePage() {
     <div className="container mx-auto p-4 sm:p-6 md:p-8">
       <header className="mb-8">
         <div className="flex flex-wrap justify-between items-center gap-4">
-          <h1 className="text-3xl font-bold">Dashboard Financeiro</h1>
-          <nav className="flex flex-wrap gap-2">
-            <Button asChild variant="outline"><Link href="/categorias">Gerenciar Categorias</Link></Button>
-            <Button asChild variant="outline"><Link href="/contas">Gerenciar Contas</Link></Button>
-            <Button asChild variant="outline"><Link href="/socios">Divisão de Lucros</Link></Button>
-            <Button asChild variant="outline"><Link href="/despesas-fixas">Despesas Fixas</Link></Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
+            <p className="text-muted-foreground">Visão geral das suas finanças.</p>
+          </div>
+          <nav className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="sm"><Link href="/despesas-fixas">Despesas Fixas</Link></Button>
+            <Button asChild variant="outline" size="sm"><Link href="/socios">Divisão de Lucros</Link></Button>
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Adicionar Movimentação
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Adicionar Movimentação</DialogTitle>
+                  <DialogDescription>
+                    Registre uma nova entrada ou saída no seu fluxo de caixa.
+                  </DialogDescription>
+                </DialogHeader>
+                <MovimentacaoForm onSave={() => setIsFormOpen(false)} />
+              </DialogContent>
+            </Dialog>
           </nav>
         </div>
       </header>
-      
+
+      {/* Filtros e Resumo */}
       <section className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Filtros</CardTitle>
+            <CardTitle>Filtros e Período</CardTitle>
+            <CardDescription>Selecione a conta e o período para visualizar os dados.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-4 items-end">
             <FiltroPeriodo onFilterChange={handleFilterChange} />
@@ -58,14 +81,23 @@ export default function HomePage() {
         </Card>
       </section>
       
+      {/* Resumo Financeiro */}
       <ResumoFinanceiro periodo={periodo} contaId={contaId} />
       
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 my-8">
+      {/* Gráfico e Lista de Movimentações */}
+      <div className="grid grid-cols-1 gap-8 mt-8">
         <GraficoFinanceiro periodo={periodo} contaId={contaId} />
-        <MovimentacaoForm />
+        <ListaMovimentacoes periodo={periodo} contaId={contaId} />
       </div>
 
-      <ListaMovimentacoes periodo={periodo} contaId={contaId} />
+      {/* Navegação Secundária */}
+      <footer className="mt-8 pt-4 border-t">
+        <p className="text-sm text-muted-foreground mb-4">Acesso rápido às áreas de gestão:</p>
+        <div className="flex flex-wrap gap-2">
+            <Button asChild variant="secondary"><Link href="/categorias">Gerenciar Categorias</Link></Button>
+            <Button asChild variant="secondary"><Link href="/contas">Gerenciar Contas</Link></Button>
+        </div>
+      </footer>
     </div>
   );
 }

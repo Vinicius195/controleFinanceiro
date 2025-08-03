@@ -132,34 +132,36 @@ export default function DespesasFixasPage() {
   };
 
   return (
-    <main className="container mx-auto p-4 md:p-8 space-y-8">
-      <div className="flex justify-between items-center">
+    <main className="container mx-auto p-4 md:p-8">
+      <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Gestão de Despesas Fixas</h1>
-        <Button asChild><Link href="/">Voltar ao Dashboard</Link></Button>
+        <Button asChild variant="outline"><Link href="/">Voltar ao Dashboard</Link></Button>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Formulário */}
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader><CardTitle>Adicionar Despesa Fixa</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Adicionar Despesa Fixa</CardTitle>
+              <CardDescription>Preencha os dados para criar uma nova despesa recorrente.</CardDescription>
+            </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-                {/* Campos do Formulário */}
                 <div className="space-y-2">
-                  <Label>Descrição</Label>
-                  <Input {...register('descricao')} placeholder="Ex: Aluguel, Salário Zé" />
+                  <Label htmlFor="descricao">Descrição</Label>
+                  <Input id="descricao" {...register('descricao')} placeholder="Ex: Aluguel, Salário Zé" />
                   {errors.descricao && <p className="text-sm text-red-500">{errors.descricao.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Valor (R$)</Label>
-                  <Input type="number" step="0.01" {...register('valor', { valueAsNumber: true })} />
+                  <Label htmlFor="valor">Valor (R$)</Label>
+                  <Input id="valor" type="number" step="0.01" {...register('valor', { valueAsNumber: true })} />
                   {errors.valor && <p className="text-sm text-red-500">{errors.valor.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Categoria Padrão</Label>
                    <Controller name="categoria" control={control} render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue/></SelectTrigger>
+                      <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                         <SelectContent>{categorias.map(c=><SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}</SelectContent>
                       </Select>
                    )}/>
@@ -168,15 +170,15 @@ export default function DespesasFixasPage() {
                 <div className="space-y-2">
                   <Label>Conta Padrão (Saída)</Label>
                   <Controller name="contaPadraoId" control={control} render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue/></SelectTrigger>
+                      <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                         <SelectContent>{contas.map(c=><SelectItem key={c.id} value={c.id!}>{c.nome}</SelectItem>)}</SelectContent>
                       </Select>
                    )}/>
                   {errors.contaPadraoId && <p className="text-sm text-red-500">{errors.contaPadraoId.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Dia do Vencimento</Label>
-                  <Input type="number" {...register('diaVencimento', { valueAsNumber: true })} />
+                  <Label htmlFor="diaVencimento">Dia do Vencimento</Label>
+                  <Input id="diaVencimento" type="number" {...register('diaVencimento', { valueAsNumber: true })} />
                   {errors.diaVencimento && <p className="text-sm text-red-500">{errors.diaVencimento.message}</p>}
                 </div>
                 <Button type="submit" className="w-full">Salvar Despesa</Button>
@@ -186,45 +188,66 @@ export default function DespesasFixasPage() {
         </div>
         
         {/* Lista e Ação */}
-        <div className="lg:col-span-2 space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Gerador Mensal</CardTitle>
-                    <CardDescription>Clique no botão para gerar as transações de saída para todas as despesas fixas cadastradas. O sistema não criará duplicatas se já tiverem sido geradas neste mês.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button className="w-full" disabled={isGenerating}>{isGenerating ? "Gerando..." : "Gerar Despesas do Mês Atual"}</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>Confirmar Geração?</AlertDialogTitle><AlertDialogDescription>Isso criará múltiplas movimentações de saída, uma para cada despesa fixa. Deseja continuar?</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleGerarDespesas}>Confirmar e Gerar</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader><CardTitle>Despesas Cadastradas</CardTitle></CardHeader>
-                <CardContent>
-                    {loading ? <p>Carregando...</p> : (
-                        <Table><TableHeader><TableRow><TableHead>Descrição</TableHead><TableHead>Vencimento</TableHead><TableHead className="text-right">Valor</TableHead></TableRow></TableHeader>
-                            <TableBody>
-                                {despesasFixas.map((d) => (
-                                <TableRow key={d.id}>
-                                    <TableCell>{d.descricao}</TableCell>
-                                    <TableCell>Todo dia {d.diaVencimento}</TableCell>
-                                    <TableCell className="text-right font-bold">{d.valor.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Despesas Cadastradas</CardTitle>
+                <CardDescription>Abaixo estão todas as suas despesas recorrentes.</CardDescription>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={isGenerating} size="sm">{isGenerating ? "Gerando..." : "Gerar Despesas do Mês"}</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmar Geração?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Isso criará múltiplas movimentações de saída, uma para cada despesa fixa que ainda não foi paga neste mês. Deseja continuar?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleGerarDespesas}>Confirmar e Gerar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="flex items-center justify-center p-8">
+                  <p className="text-muted-foreground">Carregando despesas...</p>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Vencimento</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {despesasFixas.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground h-24">Nenhuma despesa fixa cadastrada.</TableCell>
+                        </TableRow>
+                      ) : (
+                        despesasFixas.map((d, index) => (
+                          <TableRow key={d.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
+                            <TableCell className="font-medium">{d.descricao}</TableCell>
+                            <TableCell>Todo dia {d.diaVencimento}</TableCell>
+                            <TableCell className="text-right font-semibold">{d.valor.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </main>
