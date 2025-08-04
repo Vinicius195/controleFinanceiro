@@ -105,7 +105,7 @@ export default function DespesasFixasPage() {
             const descricaoMovimentacao = `Pagamento Fixo: ${despesa.descricao}`;
             // Apenas gera se uma movimentação com essa descrição exata não existir no mês
             if (!descricoesExistentes.has(descricaoMovimentacao)) {
-                const dataVencimento = set(now, { date: despesa.diaVencimento, hours: 12, minute: 0, second: 0, millisecond: 0 });
+                const dataVencimento = set(now, { date: despesa.diaVencimento, hours: 12, minutes: 0, seconds: 0, milliseconds: 0 });
                 const novoDocRef = doc(collection(db, 'movimentacoes'));
                 batch.set(novoDocRef, {
                     tipo: 'saida',
