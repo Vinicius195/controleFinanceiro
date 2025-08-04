@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subDays } from 'date-fns';
 import { PlusCircle } from 'lucide-react';
@@ -18,12 +18,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 
 export default function HomePage() {
   const [periodo, setPeriodo] = useState({
-    inicio: subDays(new Date(), 30),
+    inicio: new Date(),
     fim: new Date(),
   });
   
   const [contaId, setContaId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setPeriodo({
+      inicio: subDays(new Date(), 30),
+      fim: new Date(),
+    });
+    setIsClient(true);
+  }, []);
 
   const handleFilterChange = (inicio: Date, fim: Date) => {
     const adjustedFim = new Date(fim);
@@ -34,6 +43,11 @@ export default function HomePage() {
   const handleAccountChange = (accountId: string | null) => {
     setContaId(accountId);
   };
+
+  if (!isClient) {
+    // Renderiza um loader ou null para evitar o mismatch no SSR
+    return null; 
+  }
   
   return (
     <div className="container mx-auto p-4 sm:p-6 md:p-8">
@@ -45,6 +59,7 @@ export default function HomePage() {
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <Button asChild variant="outline" size="sm"><Link href="/despesas-fixas">Despesas Fixas</Link></Button>
+            <Button asChild variant="outline" size="sm"><Link href="/salarios">Pagamento de Salários</Link></Button>
             <Button asChild variant="outline" size="sm"><Link href="/socios">Divisão de Lucros</Link></Button>
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
               <DialogTrigger asChild>

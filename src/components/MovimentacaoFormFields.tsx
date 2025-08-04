@@ -3,7 +3,7 @@
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Categoria } from '@/models/Categoria';
-import { ContaBancaria } from '@/models/ContaBancaria'; // Importando o modelo de Conta
+import { ContaBancaria } from '@/models/ContaBancaria';
 
 // Shadcn UI Components
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface MovimentacaoFormFieldsProps {
   categorias: Categoria[];
-  contas: ContaBancaria[]; // Adicionando contas como prop
+  contas: ContaBancaria[];
 }
 
 export default function MovimentacaoFormFields({ categorias, contas }: MovimentacaoFormFieldsProps) {
@@ -48,7 +48,7 @@ export default function MovimentacaoFormFields({ categorias, contas }: Movimenta
         )}/>
       </div>
 
-      {/* NOVO CAMPO: Seletor de Conta Bancária */}
+      {/* Seletor de Conta Bancária */}
       <div className="space-y-2">
         <Label htmlFor="contaId">Conta Bancária</Label>
         <Controller name="contaId" control={control} render={({ field }) => (
@@ -76,7 +76,7 @@ export default function MovimentacaoFormFields({ categorias, contas }: Movimenta
               </SelectTrigger>
               <SelectContent>
                 {categorias.map(cat => (
-                  <SelectItem key={cat.id} value={cat.nome}>{cat.nome}</SelectItem>
+                  <SelectItem key={cat.id} value={cat.id!}>{cat.nome}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

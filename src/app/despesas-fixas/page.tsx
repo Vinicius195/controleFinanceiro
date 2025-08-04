@@ -46,11 +46,12 @@ export default function DespesasFixasPage() {
   // Formulário para adicionar nova despesa
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(DespesaFixaSchema.omit({ id: true })),
-    defaultValues: { descricao: '', valor: 0, diaVencimento: 1 }
+    defaultValues: { descricao: '', valor: 0, diaVencimento: 1, categoria: '', contaPadraoId: '' }
   });
 
   // Efeito para buscar todos os dados necessários
   useEffect(() => {
+    setLoading(true);
     const qDespesas = query(collection(db, 'despesasFixas'), orderBy('diaVencimento', 'asc'));
     const unsubDespesas = onSnapshot(qDespesas, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DespesaFixa));
@@ -89,27 +90,29 @@ export default function DespesasFixasPage() {
     try {
         const movimentacoesMesQuery = query(
             collection(db, 'movimentacoes'),
-            where('categoria', '==', 'Despesa Fixa'),
             where('data', '>=', inicioMes),
             where('data', '<=', fimMes)
         );
+        
         const movimentacoesExistentes = await getDocs(movimentacoesMesQuery);
+        // Criar um Set de descrições para verificar se a despesa já foi lançada
         const descricoesExistentes = new Set(movimentacoesExistentes.docs.map(d => d.data().descricao));
 
         const batch = writeBatch(db);
         let despesasGeradasCount = 0;
 
         despesasFixas.forEach(despesa => {
-            const descricaoMovimentacao = `Pagamento: ${despesa.descricao}`;
+            const descricaoMovimentacao = `Pagamento Fixo: ${despesa.descricao}`;
+            // Apenas gera se uma movimentação com essa descrição exata não existir no mês
             if (!descricoesExistentes.has(descricaoMovimentacao)) {
-                const dataVencimento = set(now, { date: despesa.diaVencimento });
+                const dataVencimento = set(now, { date: despesa.diaVencimento, hours: 12, minute: 0, second: 0, millisecond: 0 });
                 const novoDocRef = doc(collection(db, 'movimentacoes'));
                 batch.set(novoDocRef, {
                     tipo: 'saida',
                     descricao: descricaoMovimentacao,
                     valor: despesa.valor,
                     data: dataVencimento,
-                    categoria: 'Despesa Fixa',
+                    categoria: despesa.categoria, // AGORA USA O ID DA CATEGORIA SALVO
                     contaId: despesa.contaPadraoId,
                     createdAt: serverTimestamp()
                 });
@@ -162,7 +165,7 @@ export default function DespesasFixasPage() {
                   <Label>Categoria Padrão</Label>
                    <Controller name="categoria" control={control} render={({ field }) => (
                       <Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                        <SelectContent>{categorias.map(c=><SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}</SelectContent>
+                        <SelectContent>{categorias.map(c=><SelectItem key={c.id} value={c.id!}>{c.nome}</SelectItem>)}</SelectContent>
                       </Select>
                    )}/>
                   {errors.categoria && <p className="text-sm text-red-500">{errors.categoria.message}</p>}
@@ -234,8 +237,8 @@ export default function DespesasFixasPage() {
                           <TableCell colSpan={3} className="text-center text-muted-foreground h-24">Nenhuma despesa fixa cadastrada.</TableCell>
                         </TableRow>
                       ) : (
-                        despesasFixas.map((d, index) => (
-                          <TableRow key={d.id} className={index % 2 === 0 ? "bg-muted/50" : ""}>
+                        despesasFixas.map((d) => (
+                          <TableRow key={d.id}>
                             <TableCell className="font-medium">{d.descricao}</TableCell>
                             <TableCell>Todo dia {d.diaVencimento}</TableCell>
                             <TableCell className="text-right font-semibold">{d.valor.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</TableCell>
