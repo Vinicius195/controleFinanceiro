@@ -1,15 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal } from "lucide-react";
+import { endOfMonth, startOfMonth, subMonths } from 'date-fns';
+
+// Componentes e Utilitários
+import FiltroPeriodo from '@/components/FiltroPeriodo'; 
+import { formatCurrency, formatPercentage } from '@/lib/utils';
 
 // Modelos e Config do Firebase
 import { ContaBancaria, ContaBancariaSchema } from '@/models/ContaBancaria';
+import { Movimentacao } from '@/models/Movimentacao';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy, doc, writeBatch, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy, doc, writeBatch, where, getDocs, Timestamp } from 'firebase/firestore';
 
 // Componentes Shadcn/UI
 import { Button } from "@/components/ui/button";
@@ -19,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,13 +44,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 type FormValues = Omit<ContaBancaria, 'id'>;
 
+// Tipo atualizado para guardar os dois saldos calculados
+type ContaComSaldosCalculados = ContaBancaria & {
+  saldoInicialPeriodo: number;
+  saldoFinalPeriodo: number;
+};
+
 export default function ContasBancariasPage() {
   const { toast } = useToast();
   const [contas, setContas] = useState<ContaBancaria[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [contasComSaldos, setContasComSaldos] = useState<ContaComSaldosCalculados[]>([]);
+  const [loadingContas, setLoadingContas] = useState(true);
+  const [loadingSaldos, setLoadingSaldos] = useState(false);
+  
   const [contaParaExcluir, setContaParaExcluir] = useState<ContaBancaria | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [periodo, setPeriodo] = useState<{ from: Date; to: Date }>({
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date()),
+  });
 
   const {
     register,
@@ -55,20 +75,64 @@ export default function ContasBancariasPage() {
     resolver: zodResolver(ContaBancariaSchema.omit({ id: true })),
     defaultValues: { nome: '', banco: '', saldoInicial: 0 }
   });
-
+  
+  // Busca inicial das contas bancárias
   useEffect(() => {
     const q = query(collection(db, 'contasBancarias'), orderBy('nome', 'asc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      setContas(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContaBancaria)));
-      setLoading(false);
+      const contasData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContaBancaria));
+      setContas(contasData);
+      setLoadingContas(false);
     }, (error) => {
       console.error("Erro ao buscar contas: ", error);
-      setLoading(false);
+      toast({ title: "Erro de Carregamento", description: "Não foi possível buscar as contas bancárias.", variant: "destructive"});
+      setLoadingContas(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
-  const formatCurrency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  // Lógica de cálculo de saldos atualizada
+  const calcularSaldos = useCallback(async () => {
+    if (contas.length === 0) {
+      setContasComSaldos([]);
+      return;
+    }
+
+    setLoadingSaldos(true);
+
+    const movSnapshot = await getDocs(collection(db, "movimentacoes"));
+    const todasAsMovimentacoes = movSnapshot.docs.map(doc => {
+      const data = doc.data();
+      // Converte o Timestamp do Firestore para um objeto Date do JavaScript
+      return {
+        ...data,
+        id: doc.id,
+        data: (data.data as Timestamp).toDate(),
+      } as Movimentacao & { id: string; data: Date };
+    });
+
+    const contasAtualizadas = contas.map(conta => {
+      const movimentacoesDaConta = todasAsMovimentacoes.filter(mov => mov.contaId === conta.id);
+
+      const saldoInicialPeriodo = movimentacoesDaConta
+        .filter(mov => mov.data < periodo.from)
+        .reduce((acc, mov) => mov.tipo === 'entrada' ? acc + mov.valor : acc - mov.valor, conta.saldoInicial);
+
+      const saldoFinalPeriodo = movimentacoesDaConta
+        .filter(mov => mov.data >= periodo.from && mov.data <= periodo.to)
+        .reduce((acc, mov) => mov.tipo === 'entrada' ? acc + mov.valor : acc - mov.valor, saldoInicialPeriodo);
+
+      return { ...conta, saldoInicialPeriodo, saldoFinalPeriodo };
+    });
+
+    setContasComSaldos(contasAtualizadas);
+    setLoadingSaldos(false);
+  }, [contas, periodo]);
+
+  useEffect(() => {
+    calcularSaldos();
+  }, [calcularSaldos]);
+
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
@@ -121,6 +185,11 @@ export default function ContasBancariasPage() {
       handleDialogClose();
     }
   };
+  
+  const handlePeriodoChange = (from: Date, to: Date) => {
+    setPeriodo({ from, to });
+  };
+
 
   return (
     <>
@@ -158,42 +227,58 @@ export default function ContasBancariasPage() {
 
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader><CardTitle>Contas Cadastradas</CardTitle></CardHeader>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <CardTitle>Contas Cadastradas</CardTitle>
+                    <FiltroPeriodo onFilterChange={handlePeriodoChange} />
+                </div>
+              </CardHeader>
               <CardContent>
-                {loading ? <p>Carregando...</p> : (
+                {(loadingContas || loadingSaldos) ? <p>Carregando...</p> : (
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Nome</TableHead>
-                        <TableHead>Banco</TableHead>
-                        <TableHead className="text-right">Saldo Inicial</TableHead>
+                        <TableHead className="text-right">Saldo Início Período</TableHead>
+                        <TableHead className="text-right">Saldo Fim Período</TableHead>
+                        <TableHead className="text-right">Variação (%)</TableHead>
                         <TableHead className="text-right w-[100px]">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {contas.map((conta) => (
-                        <TableRow key={conta.id}>
-                          <TableCell className="font-medium">{conta.nome}</TableCell>
-                          <TableCell>{conta.banco || 'N/A'}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(conta.saldoInicial)}</TableCell>
-                          <TableCell className="text-right">
-                             <DropdownMenu>
+                      {contasComSaldos.map((conta) => {
+                        const variacao = conta.saldoInicialPeriodo !== 0
+                            ? ((conta.saldoFinalPeriodo - conta.saldoInicialPeriodo) / conta.saldoInicialPeriodo)
+                            : (conta.saldoFinalPeriodo > 0 ? Infinity : 0);
+                        const variacaoColor = variacao > 0 ? 'text-green-500' : variacao < 0 ? 'text-red-500' : 'text-gray-500';
+
+                        return (
+                            <TableRow key={conta.id}>
+                            <TableCell className="font-medium">{conta.nome}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(conta.saldoInicialPeriodo)}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(conta.saldoFinalPeriodo)}</TableCell>
+                            <TableCell className={`text-right font-bold ${variacaoColor}`}>
+                                {isFinite(variacao) ? formatPercentage(variacao) : 'N/A'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" className="h-8 w-8 p-0" disabled={isDeleting}>
+                                    <Button variant="ghost" className="h-8 w-8 p-0" disabled={isDeleting}>
                                     <span className="sr-only">Abrir menu</span>
                                     <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
+                                    </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={() => openDeleteDialog(conta)} className="text-red-600">
+                                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => openDeleteDialog(conta)} className="text-red-600">
                                     Excluir
-                                  </DropdownMenuItem>
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
-                              </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                </DropdownMenu>
+                            </TableCell>
+                            </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
