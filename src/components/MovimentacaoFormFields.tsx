@@ -4,6 +4,7 @@ import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Categoria } from '@/models/Categoria';
 import { ContaBancaria } from '@/models/ContaBancaria';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Shadcn UI Components
 import { Input } from "@/components/ui/input";
@@ -88,7 +89,7 @@ export default function MovimentacaoFormFields({ categorias, contas }: Movimenta
       <div className="space-y-2">
         <Label htmlFor="data">Data</Label>
          <Controller name="data" control={control} render={({ field }) => (
-            <Input type="date" value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''} onChange={(e) => field.onChange(e.target.valueAsDate)}/>
+            <Input type="date" value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''} onChange={(e) => field.onChange(e.target.valueAsDate ? getSaoPauloTime(e.target.valueAsDate) : null)}/>
          )}/>
         {errors.data && <p className="text-sm text-red-500">{(errors.data as any).message}</p>}
       </div>

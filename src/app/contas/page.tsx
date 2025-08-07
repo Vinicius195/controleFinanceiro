@@ -6,9 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { MoreHorizontal } from "lucide-react";
 import { endOfMonth, startOfMonth, subMonths } from 'date-fns';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Componentes e Utilitários
-import FiltroPeriodo from '@/components/FiltroPeriodo'; 
+import FiltroPeriodo from '@/components/FiltroPeriodo';
 import { formatCurrency, formatPercentage } from '@/lib/utils';
 
 // Modelos e Config do Firebase
@@ -61,10 +62,15 @@ export default function ContasBancariasPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  const [periodo, setPeriodo] = useState<{ from: Date; to: Date }>({
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date()),
-  });
+  const [periodo, setPeriodo] = useState<{ from: Date; to: Date } | null>(null);
+
+  useEffect(() => {
+    // Define o período inicial apenas no lado do cliente
+    setPeriodo({
+      from: startOfMonth(getSaoPauloTime()),
+      to: endOfMonth(getSaoPauloTime()),
+    });
+  }, []);
 
   const {
     register,
@@ -93,7 +99,7 @@ export default function ContasBancariasPage() {
 
   // Lógica de cálculo de saldos atualizada
   const calcularSaldos = useCallback(async () => {
-    if (contas.length === 0) {
+    if (!periodo || contas.length === 0) {
       setContasComSaldos([]);
       return;
     }
@@ -230,11 +236,11 @@ export default function ContasBancariasPage() {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <CardTitle>Contas Cadastradas</CardTitle>
-                    <FiltroPeriodo onFilterChange={handlePeriodoChange} />
+                    {periodo && <FiltroPeriodo onFilterChange={handlePeriodoChange} />}
                 </div>
               </CardHeader>
               <CardContent>
-                {(loadingContas || loadingSaldos) ? <p>Carregando...</p> : (
+                {(loadingContas || loadingSaldos || !periodo) ? <p>Carregando...</p> : (
                   <Table>
                     <TableHeader>
                       <TableRow>

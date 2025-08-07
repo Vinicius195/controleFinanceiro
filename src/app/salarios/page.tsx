@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy, where, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { startOfMonth, endOfMonth, set, getDaysInMonth } from 'date-fns';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Models
 import { Salario, SalarioSchema } from '@/models/Salario';
@@ -90,7 +91,7 @@ export default function SalariosPage() {
     }
     setIsGenerating(true);
     
-    const now = new Date();
+    const now = getSaoPauloTime();
     const inicioMes = startOfMonth(now);
     const fimMes = endOfMonth(now);
     

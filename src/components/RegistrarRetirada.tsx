@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, writeBatch, serverTimestamp, doc } from 'firebase/firestore'; // Importando 'doc'
 import { Socio } from '@/models/Socio';
 import { ContaBancaria } from '@/models/ContaBancaria';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Componentes
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,7 @@ export default function RegistrarRetirada({ isOpen, setIsOpen, socios, lucroPeri
 
     try {
       const batch = writeBatch(db);
-      const dataRetirada = new Date();
+      const dataRetirada = getSaoPauloTime();
       const periodoFormatado = `${format(periodo.inicio, 'dd/MM/yy')} - ${format(periodo.fim, 'dd/MM/yy')}`;
 
       socios.forEach(socio => {

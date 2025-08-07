@@ -5,6 +5,7 @@ import { subDays } from 'date-fns';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { Socio } from '@/models/Socio';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Componentes
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,8 +20,8 @@ interface RelatorioLucrosProps {
 
 export default function RelatorioLucros({ socios }: RelatorioLucrosProps) {
   const [periodo, setPeriodo] = useState({
-    inicio: subDays(new Date(), 30),
-    fim: new Date(),
+    inicio: subDays(getSaoPauloTime(), 30),
+    fim: getSaoPauloTime(),
   });
   const [lucro, setLucro] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -49,7 +50,7 @@ export default function RelatorioLucros({ socios }: RelatorioLucrosProps) {
   }, [periodo]);
   
   const handleFilterChange = (inicio: Date, fim: Date) => {
-    const adjustedFim = new Date(fim);
+    const adjustedFim = getSaoPauloTime();
     adjustedFim.setHours(23, 59, 59, 999);
     setPeriodo({ inicio, fim: adjustedFim });
   };

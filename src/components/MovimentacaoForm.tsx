@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Models e Firebase
 import { MovimentacaoSchema, Movimentacao } from '@/models/Movimentacao';
@@ -31,7 +32,7 @@ export default function MovimentacaoForm({ onSave }: MovimentacaoFormProps) {
     resolver: zodResolver(MovimentacaoSchema.omit({ id: true })),
     defaultValues: {
       tipo: 'entrada',
-      data: new Date(),
+      data: getSaoPauloTime(),
       descricao: '',
       valor: 0,
       categoria: '',

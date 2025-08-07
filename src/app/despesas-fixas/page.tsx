@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy, where, getDocs, writeBatch, doc } from 'firebase/firestore';
 import { startOfMonth, endOfMonth, set } from 'date-fns';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Models
 import { DespesaFixa, DespesaFixaSchema } from '@/models/DespesaFixa';
@@ -83,7 +84,7 @@ export default function DespesasFixasPage() {
   const handleGerarDespesas = async () => {
     setIsGenerating(true);
     
-    const now = new Date();
+    const now = getSaoPauloTime();
     const inicioMes = startOfMonth(now);
     const fimMes = endOfMonth(now);
     

@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy, where, doc, deleteDoc, QueryConstraint } from 'firebase/firestore';
 import { Movimentacao } from '@/models/Movimentacao';
 import { MoreHorizontal } from "lucide-react";
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Componentes
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ export default function ListaMovimentacoes({ periodo, contaId }: ListaMovimentac
                     <TableCell className="font-medium">{mov.descricao}</TableCell>
                     <TableCell>{contasMap.get(mov.contaId) || 'N/D'}</TableCell>
                     <TableCell>{mov.categoria}</TableCell>
-                    <TableCell>{new Date(mov.data).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{getSaoPauloTime(mov.data).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell className={`text-right font-bold ${mov.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
                       {mov.tipo === 'saida' && '- '}
                       {mov.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

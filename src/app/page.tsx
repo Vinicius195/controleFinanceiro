@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { subDays } from 'date-fns';
 import { PlusCircle } from 'lucide-react';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 // Componentes
 import MovimentacaoForm from '../components/MovimentacaoForm';
@@ -18,8 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 
 export default function HomePage() {
   const [periodo, setPeriodo] = useState({
-    inicio: new Date(),
-    fim: new Date(),
+    inicio: getSaoPauloTime(),
+    fim: getSaoPauloTime(),
   });
   
   const [contaId, setContaId] = useState<string | null>(null);
@@ -28,14 +29,14 @@ export default function HomePage() {
 
   useEffect(() => {
     setPeriodo({
-      inicio: subDays(new Date(), 30),
-      fim: new Date(),
+      inicio: subDays(getSaoPauloTime(), 30),
+      fim: getSaoPauloTime(),
     });
     setIsClient(true);
   }, []);
 
   const handleFilterChange = (inicio: Date, fim: Date) => {
-    const adjustedFim = new Date(fim);
+    const adjustedFim = getSaoPauloTime();
     adjustedFim.setHours(23, 59, 59, 999);
     setPeriodo({ inicio, fim: adjustedFim });
   };

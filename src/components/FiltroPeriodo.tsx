@@ -6,21 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { subDays } from 'date-fns';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 interface FiltroPeriodoProps {
   onFilterChange: (startDate: Date, endDate: Date) => void;
 }
 
 export default function FiltroPeriodo({ onFilterChange }: FiltroPeriodoProps) {
-  const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>(subDays(getSaoPauloTime(), 30));
+  const [endDate, setEndDate] = useState<Date>(getSaoPauloTime());
 
   const handleFilter = () => {
     onFilterChange(startDate, endDate);
   };
 
   const setPresetPeriod = (days: number) => {
-    const end = new Date();
+    const end = getSaoPauloTime();
     const start = subDays(end, days);
     setStartDate(start);
     setEndDate(end);

@@ -16,6 +16,7 @@ import { Movimentacao } from '@/models/Movimentacao';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, where, orderBy, QueryConstraint } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { getSaoPauloTime } from '@/lib/date-utils';
 
 interface GraficoFinanceiroProps {
   periodo: {
@@ -71,7 +72,7 @@ export default function GraficoFinanceiro({ periodo, contaId }: GraficoFinanceir
 
   const processDataForChart = (movimentacoes: Movimentacao[]): ChartData[] => {
     const groupedByDay = movimentacoes.reduce((acc, mov) => {
-      const day = format(new Date(mov.data), 'dd/MM');
+      const day = format(getSaoPauloTime(mov.data), 'dd/MM');
       if (!acc[day]) {
         acc[day] = { entradas: 0, saidas: 0 };
       }
